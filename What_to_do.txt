@@ -1,0 +1,9 @@
+What do we need to report?
+1. Summary statistics (means, SDs, N) per cell //ok
+2. F(df1, df2) = F-value, p = p-value, effect size per effect (apa package!)
+3. Possibly pairwise contrasts (or t-tests) //ok
+4. Interpretation (direction of effect and theoretical meaning)
+
+Problem shooting:
+* dplyr::
+* data <- data....
