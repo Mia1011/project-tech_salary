@@ -1,0 +1,352 @@
+---
+title: "Biostatistics Project"
+author: "Mia (Wei-Jhen Suen)"
+date: "2024.06.02"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+encoding: UTF-8
+---
+
+# I. Introduction
+
+Inspired by a recent podcast about the gender-salary relationship, I would like to delve deeper into the relationship between salary and different factors. In this project, my focus is to uncover and interpret patterns in the data in order to understand the reasons influencing salary levels. I will be analyzing a salary-based dataset from Kaggle, originating from an anonymous tech company. (Unfortunately, I can't attach the link here because the original source website seems to be no longer available...)
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  comment = "#>", echo = FALSE, warning = FALSE, fig.width = 5, fig.height = 3
+)
+```
+
+# II. Look at the data
+
+```{r, message=FALSE}
+# Set-up
+#library("corrr") # correlation map
+library("htmltools")
+library("Hmisc")
+library("broom")
+library("car")
+library("effectsize")
+library("report")
+library("tidyverse")
+library("apa")
+library("pwr")
+```
+
+```{r, message=FALSE}
+dat <- read_csv("Salary_Data.csv", na=c("", NA))
+```
+
+To begin with, I read in the csv. file from my project's directory and check out the data structure.
+
+```{r}
+str(dat)
+```
+
+There are six columns - *Age*, *Gender*, *Education Level*, *Job Title*, *Years of Experience*, and *Salary* along with 6.704 data in total. I noticed that the data types of *Gender*, *Education Level*, and *Job Title* are characters. It reminds me of the previous course materials that it's crucial to convert a vector object to a factor, especially while analyzing data. It helps with a fixed set of acceptable values, avoiding errors from any arithmetic operations on that column. Therefore, I overwrite *Gender*, *Education Level*, and *Job Title* as factors.
+
+```{r}
+dat <- dat %>% 
+  mutate(Gender = as.factor(Gender),
+         `Education Level` = as.factor(`Education Level`), 
+         `Job Title` = as.factor(`Job Title`))
+```
+
+Then, let's take a look at the summary of the data.
+
+```{r}
+summary(dat)
+```
+
+For *Gender*, the number of *Male* is slightly more than *Female* but not a huge gap. For *Education Level*, I notice some overlap naming can be combined together, which I will process afterward. As for *Salary*, the minimum is pretty low, while the maximum is actually not as high as I imagine. Driven by curiosity, I checked the job title of the highest salary - it's from the company's CEO.
+
+## Problem shooting in this section
+
+**Problem 1:** It is not allowed to have space in columns' names.\
+**Solution:** I tried many traditional ways, like substitute the space with dot(.) or underline(\_), but the results is not as satisfied as I wished. At the end, I found an elegant but useful way by simply adding \` \` to the names in the code, so the errors can be solved without changing original data.
+
+**Problem 2:** After removing NA rows at the beginning, there are still NA while doing visualization.\
+**Solution:** The professor pointed out that it's not really a good way to remove all the rows with NA at the very beginning, cause it also remove other data in those rows which may be useful while analyzing specific columns. Therefore, I decided to wrangle the data individually for different purposes, and remove NA at the very end to reserve as much data as possible.
+
+# III. Analyze the data
+
+After familiarizing myself with the fundamental structure of the data, my goal is to delve deeper into the relationship between salary and other factors from three aspects:
+
+A.  Gender v.s. Salary
+
+B.  Education Level v.s. Salary
+
+C.  Years of Experience v.s. Salary (based on Education Level)
+
+In the following sections, I will:
+
+1.  Wrangle the data
+
+2.  Compute summary statistics
+
+3.  Visualize the data
+
+4.  Check assumptions
+
+5.  Interpret the results
+
+## A. Gender v.s. Salary
+
+In this section, I want to find out whether gender has an impact on salaries within the data and to uncover any noteworthy patterns or differences in earnings based on gender.
+
+```{r}
+# wrangling
+dat1 <- dat %>% 
+  dplyr::select(Gender, Salary) %>% 
+  dplyr::filter(Gender %in% c("Female", "Male"))
+dat1 <- na.omit(dat1)
+```
+
+First, I wrangle the data by selecting the columns *Gender* and *Salary*, and filtering only the *Female* and *Male* rows which I want to look into. Last but not least, omit NA rows, and.. data is ready!
+
+```{r}
+# compute summary statistics
+stat1 <- group_by(dat1, Gender) %>%
+  summarise(
+    N = n(),
+    mean = mean(Salary, na.rm = TRUE),
+    sd = sd(Salary, na.rm = TRUE))
+stat1
+```
+
+Take a look at the summary statistics - counts, means and standard deviations. For the average income, men earn \$13.500 more than women per year. Also, men have a bigger variance for salary's distribution, while women have a more centered one.
+
+For data with two or more numerical variables, I use the violin-boxplots to depict both summary statistics (from boxplots) and the density of two categories (from violin plots).
+
+```{r}
+# visualization
+dat1 %>%
+  ggplot(aes(x = Gender, y = Salary)) +
+  geom_violin(trim = TRUE) +
+  geom_boxplot(aes(fill = Gender), width = .2, show.legend = FALSE) + 
+  stat_summary(geom = "pointrange", fun.data = "mean_cl_normal") + # interpret confidence interval 
+  # (but invisible in this case because there are too many data so the line is too short)
+  labs(x = "Gender", y = "Salary ($)")
+```
+
+According to the plot, we can conclude that men have a higher density at higher payments \$185.000 approximately. Also, men have a higher payment peak, earning up to \$250.000, while women can only earn a maximum \$220.000 per year.
+
+```{r}
+# F-test
+res1.f <- var.test(Salary ~ Gender, data = dat1)
+res1.f
+# Two sample t-test
+res1.t <- t.test(Salary ~ Gender, 
+               data = dat1, 
+               paired = FALSE, 
+               alternative = "two.sided", 
+               var.equal = TRUE)
+res1.t
+```
+
+The p-value of F-test is p = 0.4878, greater than the significance level 0.05, which means there is no significant difference between the variances of the two genders. Therefore, we can use the classic t-test which assume equality of the two variances.
+
+For two statistically independent samples, I use Two sample t-test to determine if salary means for two genders are equal. As you can see, t statistic value is t = -10.486, and degrees of freedom is df = 6683. The p-value of the t-test is super small, less than the significance level 0.05. We can conclude that men's average salary is significantly different from women's. The confidence interval of the mean at 95% is [-16024.79, -10976.95].
+
+```{r}
+# Effect Size for t-test
+effectsize::cohens_d(Salary ~ Gender, paired=F, data=dat1)
+```
+
+```{r}
+# apa
+t.test(x = dat1 %>% filter(Gender=="Female") %>% pull(Salary),
+       y = dat1 %>% filter(Gender=="Male") %>% pull(Salary),
+       alternative = "two.sided", 
+       var.equal = TRUE) %>% 
+  apa::t_apa(es_ci=T) #optional: confidence interval around effect size
+```
+
+Based on Cohen's d, the effect size -0.26 is rather small, indicating that the salary difference between male and female is not practically significant.
+
+Overall, there's no significant impact of gender on salaries within this tech company dataset.
+
+## B. Education Level v.s. Salary
+
+Since the steps for the following sections are pretty similar to the first one, I will skip some similar details and focus only on the main description and interpretation.
+
+In this section, I want to find out whether education levels have impacts on salaries within the data and to uncover any noteworthy patterns or differences in earnings based on education levels.
+
+```{r}
+# wrangling
+dat2 <- dat %>% dplyr::select(`Education Level`, Salary)
+dat2 <- na.omit(dat2)
+# show the levels
+levels(dat2$`Education Level`)
+```
+
+In the column *Education Level*, there are different naming for same education levels, so I rename the factors using `mutate` function.
+
+```{r}
+# rename the factors
+dat2 <- dat2 %>% 
+  mutate(`Education Level` = dplyr::recode(`Education Level`, 
+                                           `Bachelor's Degree` = "Bachelor's", 
+                                           `Master's Degree` = "Master's", 
+                                           phD = "PhD"))
+# order the levels
+dat2 <- dat2 %>%
+  mutate(`Education Level` = factor(`Education Level`, levels = c("High School", "Bachelor's", "Master's", "PhD")))
+
+# compute summary statistics
+group_by(dat2, `Education Level`) %>%
+  summarise(
+    N = n(),
+    mean = mean(Salary, na.rm = TRUE),
+    sd = sd(Salary, na.rm = TRUE)
+  )
+```
+
+We can tell from the means that the average salary will increase with education level.
+
+```{r}
+# visualization
+dat2 %>%
+  ggplot(aes(x = `Education Level`, y = Salary)) +
+  geom_violin(trim = TRUE) +
+  geom_boxplot(aes(fill = `Education Level`), width = .2, show.legend = FALSE) +
+  stat_summary(geom = "pointrange", fun.data = "mean_cl_normal") + 
+  labs(x = "Education Level", y = "Salary ($)") 
+```
+
+```{r}
+# One-Way ANOVA - using lm()
+res2.lm <- lm(Salary ~ `Education Level`, data = dat2)
+anova(res2.lm)
+```
+
+```{r}
+# One-Way ANOVA - using aov
+res2.aov <- aov(Salary ~ `Education Level`, data = dat2)
+summary(res2.aov)
+```
+
+I run the between-subjects ANOVA using two different functions - `lm()` and `aov()`, and turn out they have exactly same results. As the p-value is much less than the significance level 0.05, we can conclude that there are significant differences between the groups highlighted with "\*" in the summary.
+
+```{r}
+# check the normality assumption
+plot(res2.aov, 2)
+```
+
+As all the points fall approximately along this reference line, we can assume normality.
+
+```{r}
+# Post-Hoc Tests
+library(emmeans)
+res2.lm %>% emmeans(pairwise ~ `Education Level`, adjust = "bonferroni")
+```
+
+Post-hoc test is done to identify which groups differ from each other.
+
+```{r}
+# Effect Size for ANOVA
+options(es.use_symbols = TRUE)
+eta_squared(res2.lm, partial = FALSE)
+```
+
+The effect size η² = 0.42 represents a moderate effect, indicating that the difference between groups has no practical significance, but still has a reference value.
+
+```{r}
+# apa
+```
+
+## C. Years of Experience v.s. Salary (based on Education Level)
+
+In this section, I want to observe the salary trend based on different education level's working experience.
+
+```{r}
+# wrangling
+dat3 <- dat %>% 
+  dplyr::select(`Education Level`, `Years of Experience`, Salary) %>% 
+  mutate(`Education Level` = dplyr::recode(`Education Level`, 
+                                           `Bachelor's Degree` = "Bachelor's", 
+                                           `Master's Degree` = "Master's", 
+                                           phD = "PhD"))
+dat3 <- na.omit(dat3)
+# order the levels
+dat3 <- dat3 %>%
+  mutate(`Education Level` = factor(`Education Level`, levels = c("High School", "Bachelor's", "Master's", "PhD")))
+
+# visualization
+dat3 %>%
+    ggplot(aes(x = `Years of Experience`, y = Salary, colour = `Education Level`))+
+    geom_point()+
+    scale_x_continuous(name = "Years of Experience") + 
+    scale_y_continuous(name = "Salary ($)")+
+    geom_smooth(method=lm)
+```
+
+From my perspective, this is a very interesting graph.
+
+Starting salaries increase with the level of education, which aligns with many people's expectations. Interestingly, as years of work experience grow, the salary for bachelor's degrees experiences the highest significant rise, followed by master's degrees, and PhD the least. Salaries for those with high school education remain consistently the lowest.
+
+However, the previous analysis indeed showed that salaries increase with higher levels of education. Why does it seem contradictory to this result now? I infer maybe it's because most employees in this tech companies have lower seniority, not yet surpassing the intersection point on the salary graph.
+
+***2024.04.09 Update:**\
+After reading the professor's feedback, I think he made a really good point. From the linear model, it's hard to tell if the Bachelor's line is influenced by a few specific cases. Maybe the CEO of the company has a Bachelor's degree, which influences the trend of the line. He recommended me to revise the visualization a bit in order to fit "flexible curves" to the data. From the following graph, We can tell that the Bachelor's line is still below Master's in most cases. In conclusion, people with higher degrees have higher salaries "on average".*
+
+```{r}
+# visualization_v2
+dat3 %>%
+    ggplot(aes(x = `Years of Experience`, y = Salary, colour = `Education Level`))+
+    geom_point()+
+    scale_x_continuous(name = "Years of Experience") + 
+    scale_y_continuous(name = "Salary ($)")+
+    geom_smooth() # without "method=lm" to draw flexible curves
+```
+
+```{r}
+# regression with categorical variables
+dat3_1 <- dat3 %>% dplyr::filter(`Education Level` != "High School")
+mod3 <- lm(Salary ~ `Years of Experience`, data = dat3_1)
+summary(mod3)
+```
+
+For the linear model, I exclude the education factor and focus only on the regression of salary and work experience.
+
+```{r}
+library("performance")
+check_model(mod3)
+```
+
+For linearity and homogeneity, the plot suggests they are not perfect at the tail end. Perhaps it's because there are fewer data, but except for that, they look pretty good.
+
+For normality of residuals, the plot does suggest that the residuals might not be normal, so I check this with `check_normality()` which runs a Shapiro-Wilk test.
+
+```{r}
+check_normality(mod3)
+```
+
+The result confirms that the residuals are not normally distributed.
+
+```{r}
+# Effect Size for regression
+pwr.f2.test(u = 1, v = 35, f2 = NULL, sig.level = .05, power = .8) #???
+```
+
+## Challenges in this section
+
+**Challenge 1:** It took me quite some of time to determine the most suitable plots for different data types and select appropriate tests to assess assumptions.
+
+**Challenge 2:** I haven't really figure out how to calculate the parameters for effect size, and also the format in apa package. The interpret for numerical statistics requires solid statistical knowledge, with which I haven't been acquainted enough. In my opinion, these are the most crucial steps for data analysis, and it can only be overcame and enhanced by consistent practice and familiarity, reaching out to multiple information and allowing for greater proficiency over time.
+
+# IV. Conclusion
+
+In this report, I analyze a dataset of 6,704 employees in a tech company, comparing their salaries with various factors. The results indicate that gender does not have a significant impact on salaries, while education level and years of work experience are positively correlated with average wages.
+
+I'm really happy to learn R language and analytical skills from the beginning in this semester, and apply them to this report. Although the process was quite challenging, solving each problem brought a huge sense of accomplishment to me. Thankfully, the results are satisfying and intriguing as well. I plan to continue exploring how to interpret data and will try to present the results in APA format to enhance and fully complete this report.
+
+# V. Reference
+
+1.  <https://spressi.github.io/biostats/>
+2.  <https://psyteachr.github.io/quant-fun-v2/index.html>
+3.  <http://www.sthda.com/english/wiki/unpaired-two-samples-t-test-in-r>
+4.  <http://www.sthda.com/english/wiki/one-way-anova-test-in-r>
+5.  <http://www.sthda.com/english/articles/40-regression-analysis/163-regression-with-categorical-variables-dummy-coding-essentials-in-r/>
