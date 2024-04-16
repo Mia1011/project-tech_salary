@@ -1,5 +1,10 @@
 # Tech Company Salary-based Analysis Project
+This project aims to explore the reasons influencing salaries within the tech industry. By analyzing a dataset from an anonymous tech company, I delved into the correlations and patterns between salary levels and various factors.  
+
+## Background
+During my exchange program in Germany, I acquired proficiency in the R programming language through Biostatistics course. Inspired by a podcast's discussion on gender-salary dynamics and driven by my aspiration to work in the tech industry, I embarked on this project.  
 
 ## About
-Inspired by a recent podcast about the gender-salary relationship, I would like to delve deeper into the relationship between salary and different factors. In this project, my focus is to uncover and interpret patterns in the data in order to understand the reasons influencing salary levels. I will be analyzing a salary based dataset from Kaggle, originating from an anonymous tech company. (Unfortunately, I can’t attach the link here because the original source website seems to be no longer available…)
-## 
+- Dataset (.csv): This file contains 6,704 records of employees from a tech company. It includes six columns — Age, Gender, Education Level, Job Title, Years of Experience, and Salary.
+- Analysis Script (.rmd): The R Markdown file comprises original code chunks and explanatory text.
+- Project Report (.pdf): The PDF document discribes the project's findings, presenting visualizations, analyses, and interpretations.
