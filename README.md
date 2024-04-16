@@ -1,5 +1,5 @@
 # Tech Company Salary-based Analysis Project
-This project aims to explore the reasons influencing salaries within the tech industry. By analyzing a dataset from an anonymous tech company, I delved into the correlations and patterns between salary levels and various factors.  
+This project aims to explore the reasons influencing salaries within the tech industry. By analyzing a dataset from an anonymous tech company, we delve into the correlations and patterns between salary levels and various factors.  
 
 ## Background
 During my exchange program in Germany, I acquired proficiency in the R programming language through Biostatistics course. Inspired by a podcast's discussion on gender-salary dynamics and driven by my aspiration to work in the tech industry, I embarked on this project.  
