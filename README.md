@@ -8,3 +8,8 @@ During my exchange program in Germany, I acquired proficiency in the R programmi
 - Dataset (.csv): This file contains 6,704 records of employees from a tech company. It includes six columns — Age, Gender, Education Level, Job Title, Years of Experience, and Salary.
 - Analysis Script (.rmd): The R Markdown file comprises original code chunks and explanatory text.
 - Project Report (.pdf): The PDF document discribes the project's findings, presenting visualizations, analyses, and interpretations.
+
+## Results
+![Salary-Gender](/img/salary-gender.png)
+![Salary-Education](/img/salary-education.png)
+![Salary-WorkExperience](/img/salary-experience.png)
