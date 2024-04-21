@@ -20,4 +20,4 @@ Last but not least, the plot for both work experience and education factor is qu
 ## Feedback
 Happy with the positive feedback from the professor! 
 ![Email_Feedback](/img/feedback.png)
-<img src="https://github.com/Mia1011/project_biostatistics/img/feedback.png" width="48">
+<img src="https://github.com/Mia1011/project_biostatistics/img/feedback.png" width="200">
