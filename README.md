@@ -20,4 +20,4 @@ Last but not least, the plot for both work experience and education factor is qu
 ## Feedback
 Happy with the positive feedback from the professor! 
 ![Email_Feedback](/img/feedback.png)
-![Certificate](/img/certificate.png)
+![Certificate](/img/certificate.jpg)
