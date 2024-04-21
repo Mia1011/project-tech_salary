@@ -10,6 +10,14 @@ During my exchange program in Germany, I acquired proficiency in the R programmi
 - Project Report (.pdf): The PDF document discribes the project's findings, presenting visualizations, analyses, and interpretations.
 
 ## Results
+When it comes to the gender factor, men earn $13.500 more than women annually. Also, men have a higher payment peak at $250.000, while women can only earn up to $220.000 per year. 
 ![Salary-Gender](/img/salary-gender.png)
+As for the education factor, we can tell from the means that the average salary will increase with education level. 
 ![Salary-Education](/img/salary-education.png)
+Last but not least, the plot for both work experience and education factor is quite interesting. In general, people with higher degrees have higher salaries “on average”. However, there are some interactions between Bachelor's and Master's Degree, which worth a further discussion. 
 ![Salary-WorkExperience](/img/salary-experience.png)
+
+## Feedback
+Happy with the positive feedback from the professor! 
+![Email_Feedback](/img/feedback.png)
+![Certificate](/img/certificate.png)
