@@ -1,4 +1,4 @@
-# Tech Company Salary-based Analysis Project
+# Data Analysis of Tech Salary with R
 This project aims to explore the reasons influencing salaries within the tech industry. By analyzing a dataset from an anonymous tech company, we delve into the correlations and patterns between salary levels and various factors.  
 
 ## Background
