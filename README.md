@@ -39,5 +39,5 @@ Last but not least, the plot for both work experience and education factor is qu
 
 ## Instructor Feedback
 Honored to receive positive feedback from the professor.
-![Email_Feedback](/img/feedback.png)
+![Feedback](/img/feedback_from_professor.png)
 ![Certificate](/img/certificate.jpg)
